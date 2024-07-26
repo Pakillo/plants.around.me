@@ -1,2 +1,4 @@
 ^plants\.around\.me\.Rproj$
 ^\.Rproj\.user$
+^README\.Rmd$
+^LICENSE\.md$
