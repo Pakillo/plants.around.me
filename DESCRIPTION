@@ -1,6 +1,6 @@
 Package: plants.around.me
 Title: Find Native Plants Around Me
-Version: 0.0.1
+Version: 0.0.2
 Authors@R: 
     person("Francisco", "Rodriguez-Sanchez", , "f.rodriguez.sanc@gmail.com", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0002-7981-1599"))
@@ -14,7 +14,6 @@ URL: https://github.com/Pakillo/plants.around.me
 BugReports: https://github.com/Pakillo/plants.around.me/issues
 Imports:
     dplyr,
-    nngeo,
     sf
 Depends: 
     R (>= 4.1.0)

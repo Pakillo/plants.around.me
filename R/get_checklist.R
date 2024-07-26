@@ -30,33 +30,28 @@ get_checklist <- function(lon = NULL, lat = NULL) {
   zone <- data.frame(lon = lon, lat = lat)
   zone <- sf::st_as_sf(zone, coords = c("lon", "lat"), crs = 4326)
 
-  ## Load spp distributions
-  distr <- sf::st_as_sf(locs, coords = c("lng", "lat"), crs = 4326)
-
 
   ## Find grid points to be included
   # grid.sf is an internal dataset with the coordinates of all the unique points
   # Here we find all points within 7 km of the given point or polygon
   # sqrt(5000^2 + 5000^2) = 7071 m  (maximum distance from corner to 10x10 km grid cell centre)
-  pts.near <- suppressMessages(
-    unlist(nngeo::st_nn(zone, grid.sf, k = nrow(grid.sf), maxdist = 7000,
-                        progress = FALSE))
-  )
+  requireNamespace("dplyr", quietly = TRUE)
+  pts.near <- sf::st_filter(grid.sf, zone, dist = 7000, .predicate = sf::st_is_within_distance)
 
 
-  if (length(pts.near) < 1) {
+  if (nrow(pts.near) < 1) {
     message("These coordinates could not be matched to any grid cell. Please check them")
   }
 
-  if (length(pts.near) > 0) {
+  if (nrow(pts.near) > 0) {
 
-    pts.sf <- grid.sf[pts.near, ]  # points to get taxa from
+    pts <- as.data.frame(sf::st_coordinates(pts.near))
 
-    requireNamespace("dplyr", quietly = TRUE)  # st_filter seems to require dplyr
-    spp <- sf::st_filter(distr, pts.sf)   # filter Distributions dataset to those points only
-
-    spp <- sf::st_drop_geometry(spp)
-    # spp <- subset(spp)
+    ## Load spp distributions & filter only selected coordinates
+    distr <- locs
+    names(distr) <- c("Taxon", "Family", "GBIF_id", "X", "Y")
+    spp <- dplyr::semi_join(distr, pts, by = c("X", "Y"))
+    spp <- subset(spp, select = -c(X, Y))
     spp <- unique.data.frame(spp)
 
     return(spp)
